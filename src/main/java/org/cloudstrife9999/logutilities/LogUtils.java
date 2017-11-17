@@ -55,6 +55,8 @@ public class LogUtils {
      * 
      */
     public static void log(Exception e) {
+	e.printStackTrace();
+	
 	if (e.getMessage() != null) {
 	    log(e.getMessage(), e);
 	} else {
