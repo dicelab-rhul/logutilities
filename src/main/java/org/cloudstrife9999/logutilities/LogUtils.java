@@ -105,7 +105,6 @@ public class LogUtils {
      */
     public static void fakeLog(Exception e) {
 	// this exception does not need to be logged
-	log(e);
     }
 
     /**
