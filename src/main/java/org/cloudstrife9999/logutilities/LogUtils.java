@@ -55,13 +55,28 @@ public class LogUtils {
      * 
      */
     public static void log(Exception e) {
-	e.printStackTrace();
+	String firstLine = "EXCEPTION!!! " + e.getClass().getName() + ( e.getMessage() == null ? "" : " (" + e.getMessage() + ")") + " at:";
+	logStackStrace(firstLine, e);
+    }
+
+    private static void logStackStrace(String firstLine, Exception e) {
+	StackTraceElement[] stackTrace = e.getStackTrace();
 	
-	if (e.getMessage() != null) {
-	    log(e.getMessage(), e);
-	} else {
-	    log(e.getClass().getSimpleName(), e);
+	if(stackTrace != null) {
+	    logStackStrace(firstLine, stackTrace);
 	}
+    }
+
+    private static void logStackStrace(String firstLine, StackTraceElement[] stackTrace) {
+	StringBuilder builder = new StringBuilder(firstLine);
+	builder.append('\n');
+	
+	for(StackTraceElement e : stackTrace) {
+	    builder.append(e.toString());
+	    builder.append('\n');
+	}
+	
+	log(Level.SEVERE, builder.toString());
     }
 
     /**
@@ -75,7 +90,8 @@ public class LogUtils {
     public static void log(Exception e, String className) {
 	if (e.getMessage() != null) {
 	    log(className + ": " + e.getMessage(), e);
-	} else {
+	}
+	else {
 	    log(className + ": " + e.getClass().getSimpleName(), e);
 	}
     }
@@ -89,6 +105,7 @@ public class LogUtils {
      */
     public static void fakeLog(Exception e) {
 	// this exception does not need to be logged
+	log(e);
     }
 
     /**
