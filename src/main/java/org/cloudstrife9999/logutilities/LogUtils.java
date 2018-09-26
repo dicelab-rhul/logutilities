@@ -128,7 +128,7 @@ public class LogUtils {
      * 
      */
     public static void log(Level level, String message) {
-	LOGGER.log(level, message);
+	LOGGER.log(level, () -> message);
     }
 
     /**
