@@ -12,7 +12,8 @@ import java.util.logging.Logger;
  */
 public class LogUtils {
     private static final Logger LOGGER = initLogger();
-
+    private static boolean verbose;
+    
     private LogUtils() {}
 
     private static Logger initLogger() {
@@ -25,6 +26,14 @@ public class LogUtils {
 	return logger;
     }
 
+    public static void enableVerbose() {
+	LogUtils.verbose = true;
+    }
+    
+    public static void disableVerbose() {
+	LogUtils.verbose = false;
+    }
+    
     /**
      * 
      * Logs a message of type <code>T</code> to the INFO level.
@@ -128,7 +137,9 @@ public class LogUtils {
      * 
      */
     public static void log(Level level, String message) {
-	LOGGER.log(level, () -> message);
+	if(LogUtils.verbose) {
+	    LOGGER.log(level, () -> message);
+	}
     }
 
     /**
@@ -141,7 +152,9 @@ public class LogUtils {
      * 
      */
     public static void log(Level level, String message, Exception e) {
-	LOGGER.log(level, message, e);
+	if(LogUtils.verbose) {
+	    LOGGER.log(level, message, e);
+	}
     }
 
     /**
