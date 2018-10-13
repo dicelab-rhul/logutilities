@@ -22,14 +22,25 @@ public class LogUtils {
 	CleanConsoleHandler handler = new CleanConsoleHandler();
 	handler.setFormatter(new CleanLogFormatter());
 	logger.addHandler(handler);
+	enableVerbose();
 	
 	return logger;
     }
 
+    /**
+     * 
+     * Makes this logger able to print incoming lines. Also reverses the effect of {@link #disableVerbose()}.
+     * 
+     */
     public static void enableVerbose() {
 	LogUtils.verbose = true;
     }
     
+    /**
+     * 
+     * Makes the logger suppress any incoming line (i.e., nothing will ever be printed until {@link #enableVerbose()} is called).
+     * 
+     */
     public static void disableVerbose() {
 	LogUtils.verbose = false;
     }
