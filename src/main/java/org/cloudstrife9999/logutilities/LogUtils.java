@@ -74,28 +74,8 @@ public class LogUtils {
      * @param e the {@link Exception} to log.
      * 
      */
-    public static void log(Exception e) {
-	String firstLine = "EXCEPTION!!! " + e.getClass().getName() + ( e.getMessage() == null ? "" : " (" + e.getMessage() + ")") + " at:";
-	logStackStrace(firstLine, e);
-    }
-
-    private static void logStackStrace(String firstLine, Exception e) {
-	StackTraceElement[] stackTrace = e.getStackTrace();
-	
-	if(stackTrace != null) {
-	    logStackStrace(firstLine, stackTrace);
-	}
-    }
-
-    private static void logStackStrace(String firstLine, StackTraceElement[] stackTrace) {
-	StringBuilder builder = new StringBuilder(firstLine);
-	builder.append('\n');
-	
-	for(StackTraceElement e : stackTrace) {
-	    builder.append(e.toString());
-	    builder.append('\n');
-	}
-	
+    public static synchronized void log(Exception e) {
+	ExceptionsStringBuilder2D builder = new ExceptionsStringBuilder2D(e);
 	log(Level.SEVERE, builder.toString());
     }
 
