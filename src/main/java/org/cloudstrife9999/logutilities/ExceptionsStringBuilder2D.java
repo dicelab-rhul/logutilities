@@ -27,7 +27,6 @@ public class ExceptionsStringBuilder2D extends AbstractStringBuilder2D<Exception
     private void appendCause(Throwable throwable) {
 	getBuilder().append("Cause: ");
 	appendVerboseCause(throwable);
-	getBuilder().append("\n\n");
     }
 
     private void appendVerboseCause(Throwable throwable) {
@@ -38,6 +37,7 @@ public class ExceptionsStringBuilder2D extends AbstractStringBuilder2D<Exception
 	    appendMessage(cause);
 	    appendStackTrace(cause);
 	    appendCause(cause);
+	    getBuilder().append("\n\n");
 	}
 	else {
 	    getBuilder().append("___ no parent exception found ___");
