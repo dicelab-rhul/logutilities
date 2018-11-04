@@ -2,20 +2,38 @@ package org.cloudstrife9999.logutilities;
 
 public class ExceptionsStringBuilder2D extends AbstractStringBuilder2D<Exception> {
     private int length;
+    private static final int DEFAULT_LENGTH = 50;
     
-    public ExceptionsStringBuilder2D(Exception exception) {
+    public ExceptionsStringBuilder2D(Exception exception, int lineLength) {
 	super(exception);
 	
-	this.length = 50;
+	this.length = lineLength;
 	
 	initBuilder();
+    }
+    
+    public ExceptionsStringBuilder2D(Exception exception) {
+	this(exception, ExceptionsStringBuilder2D.DEFAULT_LENGTH);
     }
     
     private void initBuilder() {
 	appendHeader();
 	appendMessage();
 	appendStackTrace();
+	appendCause();
 	appendFooter();
+    }
+
+    private void appendCause() {
+	getBuilder().append("Cause: ");
+	appendVerboseCause();
+	getBuilder().append("\n\n");
+    }
+
+    private void appendVerboseCause() {
+	Throwable cause = getOriginalObject().getCause();
+	String causeName = cause == null ? "___ no parent exception found ___" : cause.getClass().getSimpleName();
+	getBuilder().append(causeName);
     }
 
     private void appendFooter() {
@@ -53,23 +71,53 @@ public class ExceptionsStringBuilder2D extends AbstractStringBuilder2D<Exception
 
     private void appendMessage() {
 	getBuilder().append("\nMessage: ");
-	String message = getOriginalObject().getMessage();
-	
-	if(message == null) {
-	    message = "___ this exception has no message ___";
-	}
+
+	String message = retrieveMessage();
 	
 	getBuilder().append(message);
 	getBuilder().append("\n\n");
     }
 
+    private String retrieveMessage() {
+	String temp = getOriginalObject().getMessage();
+	
+	if(temp == null) {
+	    return "___ this exception has no message ___";
+	}
+	else if(getOriginalObject().getCause() == null) {
+	    return temp;
+	}
+	else {
+	    return parseMessage(temp);
+	}
+    }
+
+    private String parseMessage(String candidate) {
+	try {
+	    Throwable cause = getOriginalObject().getCause();
+	    String[] tokens = candidate.split(": ");
+	    
+	    if(tokens.length > 1 && Class.forName(tokens[0]).isAssignableFrom(cause.getClass())) {
+		return "___ this exception has no message ___";
+	    }
+	    else {
+		return candidate;
+	    }
+	}
+	catch(Exception e) {
+	    return candidate;
+	}
+    }
+
     private void appendStackTrace() {
-	getBuilder().append("Stack trace:\n");
+	getBuilder().append("Stack trace (bottom-up):\n");
 	
 	for (StackTraceElement elm : getOriginalObject().getStackTrace()) {
 	    getBuilder().append(elm.toString());
-	    getBuilder().append("\n\n");
+	    getBuilder().append("\n");
 	}
+	
+	getBuilder().append("\n");
     }
     
     private void appendLineOfSharps() {
@@ -81,22 +129,28 @@ public class ExceptionsStringBuilder2D extends AbstractStringBuilder2D<Exception
     }
     
     private void appendLineOfElements(String... elements) {
-	int count = 0;
+	int trailingWhiteSpaces = calculateTrailingWhiteSpaces(elements);
 	
 	getBuilder().append('#');
-	count++;
 	
 	for (String elm: elements) {
 	    getBuilder().append(' ');
 	    getBuilder().append(elm);
-	    
-	    count += elm.length() + 1;
 	}
 	
-	int remainingWhites = this.length - count - 1;
-	appendCharacter(' ', remainingWhites);
+	appendCharacter(' ', trailingWhiteSpaces);
 	
 	getBuilder().append("#\n");
+    }
+
+    private int calculateTrailingWhiteSpaces(String... elements) {
+	int count = 2 + (elements == null ? 0 : elements.length); //The initial '#' + 1 white space before each element + the ending '#'.
+	
+	for (String elm: elements) {
+	    count += elm.length();
+	}
+	
+	return Math.max(this.length - count, 0);
     }
 
     @Override
