@@ -18,22 +18,30 @@ public class ExceptionsStringBuilder2D extends AbstractStringBuilder2D<Exception
     
     private void initBuilder() {
 	appendHeader();
-	appendMessage();
-	appendStackTrace();
-	appendCause();
+	appendMessage(getOriginalObject());
+	appendStackTrace(getOriginalObject());
+	appendCause(getOriginalObject());
 	appendFooter();
     }
 
-    private void appendCause() {
+    private void appendCause(Throwable throwable) {
 	getBuilder().append("Cause: ");
-	appendVerboseCause();
+	appendVerboseCause(throwable);
 	getBuilder().append("\n\n");
     }
 
-    private void appendVerboseCause() {
-	Throwable cause = getOriginalObject().getCause();
-	String causeName = cause == null ? "___ no parent exception found ___" : cause.getClass().getSimpleName();
-	getBuilder().append(causeName);
+    private void appendVerboseCause(Throwable throwable) {
+	Throwable cause = throwable.getCause();
+	
+	if(cause != null) {
+	    getBuilder().append(cause.getClass().getSimpleName());
+	    appendMessage(cause);
+	    appendStackTrace(cause);
+	    appendCause(cause);
+	}
+	else {
+	    getBuilder().append("___ no parent exception found ___");
+	}
     }
 
     private void appendFooter() {
@@ -69,17 +77,17 @@ public class ExceptionsStringBuilder2D extends AbstractStringBuilder2D<Exception
 	getBuilder().append("#\n");
     }
 
-    private void appendMessage() {
+    private void appendMessage(Throwable throwable) {
 	getBuilder().append("\nMessage: ");
 
-	String message = retrieveMessage();
+	String message = retrieveMessage(throwable);
 	
 	getBuilder().append(message);
 	getBuilder().append("\n\n");
     }
 
-    private String retrieveMessage() {
-	String temp = getOriginalObject().getMessage();
+    private String retrieveMessage(Throwable throwable) {
+	String temp = throwable.getMessage();
 	
 	if(temp == null) {
 	    return "___ this exception has no message ___";
@@ -88,13 +96,13 @@ public class ExceptionsStringBuilder2D extends AbstractStringBuilder2D<Exception
 	    return temp;
 	}
 	else {
-	    return parseMessage(temp);
+	    return parseMessage(temp, throwable);
 	}
     }
 
-    private String parseMessage(String candidate) {
+    private String parseMessage(String candidate, Throwable throwable) {
 	try {
-	    Throwable cause = getOriginalObject().getCause();
+	    Throwable cause = throwable.getCause();
 	    String[] tokens = candidate.split(": ");
 	    
 	    if(tokens.length > 1 && Class.forName(tokens[0]).isAssignableFrom(cause.getClass())) {
@@ -109,10 +117,11 @@ public class ExceptionsStringBuilder2D extends AbstractStringBuilder2D<Exception
 	}
     }
 
-    private void appendStackTrace() {
+    private void appendStackTrace(Throwable throwable) {
 	getBuilder().append("Stack trace (bottom-up):\n");
 	
-	for (StackTraceElement elm : getOriginalObject().getStackTrace()) {
+	for (StackTraceElement elm : throwable.getStackTrace()) {
+	    getBuilder().append("at ");
 	    getBuilder().append(elm.toString());
 	    getBuilder().append("\n");
 	}
