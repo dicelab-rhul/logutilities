@@ -11,15 +11,18 @@ import java.util.logging.Logger;
  *
  */
 public class LogUtils {
-    private static final Logger LOGGER = initLogger();
+    private static final Logger LOGGER = initLogger(LogUtils.OUT);
+    private static final Logger ERROR_LOGGER = initLogger(LogUtils.ERR);
     private static boolean verbose;
+    private static final String OUT = "out";
+    private static final String ERR = "err";
     
     private LogUtils() {}
 
-    private static Logger initLogger() {
+    private static Logger initLogger(String printWriterName) {
 	Logger logger = Logger.getGlobal();
 	logger.setUseParentHandlers(false);
-	CleanConsoleHandler handler = new CleanConsoleHandler();
+	CleanConsoleHandler handler = new CleanConsoleHandler(printWriterName);
 	handler.setFormatter(new CleanLogFormatter());
 	logger.addHandler(handler);
 	enableVerbose();
@@ -77,7 +80,7 @@ public class LogUtils {
      */
     public static synchronized void log(Exception e) {
 	ExceptionsStringBuilder2D builder = new ExceptionsStringBuilder2D(e);
-	forceLog(Level.SEVERE, builder.toString());
+	forceExceptionLog(Level.SEVERE, builder.toString());
     }
 
     /**
@@ -136,6 +139,10 @@ public class LogUtils {
     
     private static void forceLog(Level level, String message) {
 	LOGGER.log(level, () -> message);
+    }
+    
+    private static void forceExceptionLog(Level level, String message) {
+	ERROR_LOGGER.log(level, () -> message);
     }
 
     /**
