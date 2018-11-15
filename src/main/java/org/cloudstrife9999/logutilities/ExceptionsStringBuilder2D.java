@@ -25,8 +25,18 @@ public class ExceptionsStringBuilder2D extends AbstractStringBuilder2D<Exception
     }
 
     private void appendCause(Throwable throwable) {
+	appendLineOfCharacter('-');
+	appendCharacter('\n', 1);
 	getBuilder().append("Cause: ");
 	appendVerboseCause(throwable);
+    }
+    
+    private void appendLineOfCharacter(char c) {
+	for(int i = 0; i < this.length; i++) {
+	    getBuilder().append(c);
+	}
+	
+	getBuilder().append('\n');
     }
 
     private void appendVerboseCause(Throwable throwable) {
@@ -37,25 +47,24 @@ public class ExceptionsStringBuilder2D extends AbstractStringBuilder2D<Exception
 	    appendMessage(cause);
 	    appendStackTrace(cause);
 	    appendCause(cause);
-	    getBuilder().append("\n\n");
 	}
 	else {
-	    getBuilder().append("___ no parent exception found ___");
+	    getBuilder().append("___ no parent exception found ___\n\n");
 	}
     }
 
     private void appendFooter() {
-	appendLineOfSharps();
+	appendLineOfCharacter('#');
 	appendEndOfException();
-	appendLineOfSharps();
+	appendLineOfCharacter('#');
 	appendCharacter('\n', 1);
     }
 
     private void appendHeader() {
 	appendCharacter('\n', 2);
-	appendLineOfSharps();
+	appendLineOfCharacter('#');
 	appendLineOfElements("EXCEPTION!!!", "-->", getOriginalObject().getClass().getSimpleName());
-	appendLineOfSharps();
+	appendLineOfCharacter('#');
     }
     
     private void appendCharacter(char c, int times) {
@@ -127,14 +136,6 @@ public class ExceptionsStringBuilder2D extends AbstractStringBuilder2D<Exception
 	}
 	
 	getBuilder().append("\n");
-    }
-    
-    private void appendLineOfSharps() {
-	for(int i = 0; i < this.length; i++) {
-	    getBuilder().append("#");
-	}
-	
-	getBuilder().append('\n');
     }
     
     private void appendLineOfElements(String... elements) {
