@@ -11,8 +11,8 @@ import java.util.logging.Logger;
  *
  */
 public class LogUtils {
-    private static final Logger LOGGER = initLogger(LogUtils.OUT);
-    private static final Logger ERROR_LOGGER = initLogger(LogUtils.ERR);
+    private static final Logger LOGGER = initLogger(LogUtils.OUT); // Adds a first handler.
+    private static final Logger ERROR_LOGGER = initLogger(LogUtils.ERR); // Adds a second handler.
     private static boolean verbose;
     private static final String OUT = "out";
     private static final String ERR = "err";
@@ -78,26 +78,9 @@ public class LogUtils {
      * @param e the {@link Exception} to log.
      * 
      */
-    public static synchronized void log(Exception e) {
+    public static void log(Exception e) {
 	ExceptionsStringBuilder2D builder = new ExceptionsStringBuilder2D(e);
 	forceExceptionLog(Level.SEVERE, builder.toString());
-    }
-
-    /**
-     * 
-     * Logs an {@link Exception} to the SEVERE level. A relevant class is logged as well.
-     * 
-     * @param e the {@link Exception} to log.
-     * @param className the relevant class {@link String} name to log.
-     * 
-     */
-    public static void log(Exception e, String className) {
-	if (e.getMessage() != null) {
-	    log(className + ": " + e.getMessage(), e);
-	}
-	else {
-	    log(className + ": " + e.getClass().getSimpleName(), e);
-	}
     }
 
     /**
@@ -113,18 +96,6 @@ public class LogUtils {
 
     /**
      * 
-     * Logs an {@link Exception} with a {@link String} message to the SEVERE level.
-     * 
-     * @param message the {@link String} message to log alongside with the {@link Exception}.
-     * @param e the {@link Exception} to log.
-     * 
-     */
-    public static void log(String message, Exception e) {
-	log(Level.SEVERE, e.getClass().getCanonicalName() + ": " + message, e);
-    }
-
-    /**
-     * 
      * Logs a {@link String} message  to the specified level.
      * 
      * @param level the {@link Level} to log the message to.
@@ -133,31 +104,21 @@ public class LogUtils {
      */
     public static void log(Level level, String message) {
 	if(LogUtils.verbose) {
-	    forceLog(level, message);
+	    forceGenericLog(level, message);
 	}
     }
     
-    private static void forceLog(Level level, String message) {
-	LOGGER.log(level, () -> message);
+    private static void forceGenericLog(Level level, String message) {
+	forceLog(LogUtils.LOGGER, level, message);
     }
     
     private static void forceExceptionLog(Level level, String message) {
-	ERROR_LOGGER.log(level, () -> message);
+	forceLog(LogUtils.ERROR_LOGGER, level, message);
     }
-
-    /**
-     * 
-     * Logs an {@link Exception} with a {@link String} message to the specified level.
-     * 
-     * @param level the {@link Level} to log to.
-     * @param message the {@link String} message to log alongside with the {@link Exception}.
-     * @param e the {@link Exception} to log.
-     * 
-     */
-    public static void log(Level level, String message, Exception e) {
-	if(LogUtils.verbose) {
-	    LOGGER.log(level, message, e);
-	}
+    
+    
+    private static synchronized void forceLog(Logger logger, Level level, String message) {
+	logger.log(level, () -> message);
     }
 
     /**
