@@ -116,7 +116,7 @@ public class LogUtils {
 	forceLog(LogUtils.ERROR_LOGGER, level, message);
     }
     
-    
+    //Synchronized, so the output of differen calls won't be interleaved ever.
     private static synchronized void forceLog(Logger logger, Level level, String message) {
 	logger.log(level, () -> message);
     }
