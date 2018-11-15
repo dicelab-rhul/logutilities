@@ -69,14 +69,15 @@ public class LogUtils {
 
     /**
      * 
-     * Logs an {@link Exception} to the SEVERE level.
+     * Logs an {@link Exception} to the SEVERE level.<br /><br />
+     * The {@link Exception} will be always logged on the <code>SEVERE</code> level, and will be logged regardless of the level of verbosity.
      * 
      * @param e the {@link Exception} to log.
      * 
      */
     public static synchronized void log(Exception e) {
 	ExceptionsStringBuilder2D builder = new ExceptionsStringBuilder2D(e);
-	log(Level.SEVERE, builder.toString());
+	forceLog(Level.SEVERE, builder.toString());
     }
 
     /**
@@ -129,8 +130,12 @@ public class LogUtils {
      */
     public static void log(Level level, String message) {
 	if(LogUtils.verbose) {
-	    LOGGER.log(level, () -> message);
+	    forceLog(level, message);
 	}
+    }
+    
+    private static void forceLog(Level level, String message) {
+	LOGGER.log(level, () -> message);
     }
 
     /**
